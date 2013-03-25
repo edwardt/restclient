@@ -77,8 +77,13 @@ request(Method, Type, Url, Expect, Headers, Body) ->
     Headers1 = [{"Accept", get_accesstype(Type)++", */*;q=0.9"} | Headers],
     Headers2 = [{"Content-Type", get_ctype(Type)} | Headers1],
     Request = get_request(Url, Type, Headers2,  Body),
-    Response = parse_response(httpc:request(Method, Request,
+    case is_http_post(Method) of
+	true -> parse_response(httpc:request(Method, Request,
                                             [], [{body_format, binary}])),
+
+        false -> parse_response(httpc:request(Method, Request,
+                                            [], [{body_format, binary}])),
+    end,
     case Response of
         {ok, Status, H, B} ->
             case check_expect(Status, Expect) of
@@ -109,6 +114,16 @@ check_expect(_Status, []) ->
     true;
 check_expect(Status, Expect) ->
     lists:member(Status, Expect).
+
+is_http_post(Method) when
+       (Method =:= get) orelse
+       (Method =:= head) orelse
+       (Method =:= delete) orelse
+       (Method =:= trace) ->
+    false;
+is_http_post(Method) when 
+       (Method =:= post) ->
+    true.
 
 encode_body(json, Body) ->
     jsx:to_json(Body);
