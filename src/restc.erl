@@ -77,13 +77,18 @@ request(Method, Type, Url, Expect, Headers, Body) ->
     Headers1 = [{"Accept", get_accesstype(Type)++", */*;q=0.9"} | Headers],
     Headers2 = [{"Content-Type", get_ctype(Type)} | Headers1],
     Request = get_request(Url, Type, Headers2,  Body),
-    case is_http_post(Method) of
-	true -> parse_response(httpc:request(Method, Request,
+    io:fwrite("Request ~p~n",[Request]),
+    io:fwrite("Method ~p~n", [Method]),
+    
+    %%case is_http_post(Method) of
+%%	true -> parse_response(httpc:request(Method, Request,
+ %%                                           [], [{body_format, binary}]));
+%%
+%%        false -> parse_response(httpc:request(Method, Request,
+%%                                            [], [{body_format, binary}]))
+%%    end;
+    Response =  parse_response(httpc:request(Method, Request,
                                             [], [{body_format, binary}])),
-
-        false -> parse_response(httpc:request(Method, Request,
-                                            [], [{body_format, binary}])),
-    end,
     case Response of
         {ok, Status, H, B} ->
             case check_expect(Status, Expect) of
