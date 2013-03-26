@@ -74,7 +74,7 @@ request(Method, Type, Url, Expect, Headers) ->
 -spec request(Method::method(), Type::content_type(), Url::url(),
               Expect::status_codes(), Headers::headers(), Body::body()) -> Response::response().
 request(Method, Type, Url, Expect, Headers, []) when (Method =:= post)->
-    request(Method, Type, Url, Expect, Headers, [""});
+    request(Method, Type, Url, Expect, Headers, [""]);
 request(Method, Type, Url, Expect, Headers, Body) ->
     Headers1 = [{"Accept", get_accesstype(Type)++", */*;q=0.9"} | Headers],
     Headers2 = [{"Content-Type", get_ctype(Type)} | Headers1],
@@ -111,16 +111,6 @@ check_expect(_Status, []) ->
     true;
 check_expect(Status, Expect) ->
     lists:member(Status, Expect).
-
-is_http_post(Method) when
-       (Method =:= get) orelse
-       (Method =:= head) orelse
-       (Method =:= delete) orelse
-       (Method =:= trace) ->
-    false;
-is_http_post(Method) when 
-       (Method =:= post) ->
-    true.
 
 encode_body(json, Body) ->
     jsx:to_json(Body);
